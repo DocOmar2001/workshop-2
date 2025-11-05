@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teaching Smarter: AI Tools for Physiology Education</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --light-bg: #f8f8f8;
+            --light-text: #333;
+            --light-header-bg: linear-gradient(135deg, #a7e0ff, #c3f1f7);
+            --light-header-text: #0a4f6d;
+            --light-card-bg: #fff;
+            --light-border: #eee;
+            --light-button-bg: #007bff;
+            --light-button-text: #fff;
+            --light-hover-bg: #0056b3;
+            --menu-bg: rgba(255, 255, 255, 0.95);
+            --menu-text: #333;
+        }
+
+        .dark-mode {
+            --light-bg: #1a1a2e;
+            --light-text: #e0e0e0;
+            --light-header-bg: linear-gradient(135deg, #8a2be2, #4b0082);
+            --light-header-text: #fff;
+            --light-card-bg: #2e004d;
+            --light-border: #4b0082;
+            --light-button-bg: #6a05ad;
+            --light-button-text: #e0e0e0;
+            --light-hover-bg: #4b0082;
+            --menu-bg: rgba(0, 0, 0, 0.95);
+            --menu-text: #e0e0e0;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: var(--light-bg);
+            color: var(--light-text);
+            transition: background-color 0.5s, color 0.5s;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .background-emojis {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .emoji {
+            position: absolute;
+            font-size: 3em;
+            opacity: 0.2;
+            animation: float 15s infinite ease-in-out alternate;
+        }
+
+        .emoji:nth-child(1) { top: 10%; left: 5%; animation-delay: 0s; }
+        .emoji:nth-child(2) { top: 20%; left: 80%; animation-delay: 2s; }
+        .emoji:nth-child(3) { top: 40%; left: 20%; animation-delay: 4s; }
+        .emoji:nth-child(4) { top: 60%; left: 90%; animation-delay: 6s; }
+        .emoji:nth-child(5) { top: 80%; left: 10%; animation-delay: 8s; }
+        .emoji:nth-child(6) { top: 5%; left: 50%; animation-delay: 10s; }
+        .emoji:nth-child(7) { top: 70%; left: 30%; animation-delay: 12s; }
+        .emoji:nth-child(8) { top: 30%; left: 60%; animation-delay: 14s; }
+        .emoji:nth-child(9) { top: 90%; left: 70%; animation-delay: 1s; }
+        .emoji:nth-child(10) { top: 50%; left: 5%; animation-delay: 3s; }
+        .emoji:nth-child(11) { top: 15%; left: 70%; animation-delay: 5s; }
+        .emoji:nth-child(12) { top: 85%; left: 25%; animation-delay: 7s; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(20px, 30px) scale(1.1); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+
+        header {
+            background: var(--light-header-bg);
+            color: var(--light-header-text);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: background 0.5s, color 0.5s;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-left h1 {
+            font-family: 'Dancing Script', cursive;
+            margin: 0;
+            font-size: 2.2em;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .menu-button {
+            background: none;
+            border: none;
+            font-size: 2em;
+            color: var(--light-header-text);
+            cursor: pointer;
+            margin-right: 20px;
+            transition: color 0.3s;
+        }
+
+        .menu-button:hover {
+            color: var(--light-hover-bg);
+        }
+
+        .nav-menu {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 280px;
+            height: 100%;
+            background: var(--menu-bg);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+            transition: left 0.3s ease-in-out;
+            padding-top: 60px;
+            z-index: 1001;
+        }
+
+        .nav-menu.open {
+            left: 0;
+        }
+
+        .nav-menu a {
+            display: block;
+            padding: 15px 20px;
+            color: var(--menu-text);
+            text-decoration: none;
+            font-size: 1.1em;
+            border-bottom: 1px solid var(--light-border);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .nav-menu a:hover {
+            background-color: var(--light-button-bg);
+            color: var(--light-button-text);
+        }
+
+        .close-menu {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 2em;
+            background: none;
+            border: none;
+            color: var(--menu-text);
+            cursor: pointer;
+        }
+
+        .mode-switch-container {
+            position: relative;
+        }
+
+        .mode-switch {
+            width: 60px;
+            height: 30px;
+            background-color: #ccc;
+            border-radius: 15px;
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .mode-switch.dark {
+            background-color: #8a2be2;
+        }
+
+        .mode-switch-circle {
+            width: 26px;
+            height: 26px;
+            background-color: #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+        }
+
+        .mode-switch.dark .mode-switch-circle {
+            transform: translateX(30px);
+        }
+
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1517841961623-6e3e1f0e1f0e') center/cover no-repeat;
+            color: #fff;
+            text-align: center;
+            padding: 100px 20px;
+            min-height: 60vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            background-attachment: fixed;
+        }
+		
+        .hero h2 {
+            font-size: 3.5em;
+            margin-bottom: 15px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.4);
+        }
+
+        .hero p {
+            font-size: 1.5em;
+            max-width: 800px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .hero .presented-by {
+            font-size: 1.2em;
+            font-style: italic;
+            opacity: 0.8;
+        }
+
+        section {
+            padding: 60px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        section h3 {
+            font-size: 2.5em;
+            color: var(--light-button-bg);
+            margin-bottom: 40px;
+            position: relative;
+            display: inline-block;
+        }
+
+        section h3::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -10px;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background-color: var(--light-button-bg);
+            border-radius: 2px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .card {
+            background-color: var(--light-card-bg);
+            border: 1px solid var(--light-border);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: left;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.5s, border-color 0.5s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h4 {
+            font-size: 1.8em;
+            margin-top: 0;
+            color: var(--light-button-bg);
+            margin-bottom: 15px;
+        }
+
+        .card ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+
+        .card ul li {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            font-size: 1.1em;
+            line-height: 1.4;
+        }
+
+        .card ul li::before {
+            content: '✨';
+            margin-right: 10px;
+            color: var(--light-button-bg);
+            font-size: 1.2em;
+        }
+
+        .card button {
+            background-color: var(--light-button-bg);
+            color: var(--light-button-text);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            align-self: flex-start;
+        }
+
+        .card button:hover {
+            background-color: var(--light-hover-bg);
+            transform: translateY(-2px);
+        }
+
+        .prompt-elements {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .prompt-element {
+            background-color: var(--light-card-bg);
+            border: 1px solid var(--light-border);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            width: 180px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .prompt-element:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .prompt-element h4 {
+            font-size: 1.3em;
+            margin: 0;
+            color: var(--light-button-bg);
+        }
+
+        footer {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 60px;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 15px 20px;
+            }
+
+            .header-left h1 {
+                font-size: 1.8em;
+            }
+
+            .menu-button {
+                font-size: 1.8em;
+            }
+
+            .hero h2 {
+                font-size: 2.5em;
+            }
+
+            .hero p {
+                font-size: 1.2em;
+            }
+
+            section {
+                padding: 40px 15px;
+            }
+
+            section h3 {
+                font-size: 2em;
+            }
+
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-emojis">
+        <span class="emoji">🧠</span>
+        <span class="emoji">⚡</span>
+        <span class="emoji">🧠</span>
+        <span class="emoji">⚡</span>
+        <span class="emoji">🧠</span>
+        <span class="emoji">⚡</span>
+        <span class="emoji">🧠</span>
+        <span class="emoji">⚡</span>
+        <span class="emoji">🧠</span>
+        <span class="emoji">⚡</span>
+        <span class="emoji">🧠</span>
+        <span class="emoji">⚡</span>
+    </div>
+
+    <header>
+        <div class="header-left">
+            <button class="menu-button" aria-label="Open menu">&#9776;</button>
+            <h1>By Dr Omar Ayman</h1>
+        </div>
+        <div class="mode-switch-container">
+            <div class="mode-switch" id="modeSwitch">
+                <div class="mode-switch-circle"></div>
+            </div>
+        </div>
+    </header>
+
+    <nav class="nav-menu" id="navMenu">
+        <button class="close-menu" aria-label="Close menu">&times;</button>
+        <a href="#introduction">Introduction</a>
+        <a href="#llms">Most Useful LLMs</a>
+        <a href="#prompt-elements">Prompt Elements</a>
+        <a href="#presentation-tools">Presentation Tools</a>
+        <a href="#image-generation">Image & Visuals</a>
+        <a href="#medical-visuals">Medical Visuals & 3D</a>
+        <a href="#video-generation">Video Generation</a>
+        <a href="#student-engagement">Student Engagement</a>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <h2>Teaching Smarter: AI Tools for Physiology Education</h2>
+            <p>Unleash the hidden gems to enhance your teaching skills and empower your students with cutting-edge AI technologies.</p>
+            <p class="presented-by">Presented by: Dr Omar Ayman, Medical Intern and AI Tutor</p>
+        </section>
+
+        <section id="introduction">
+            <h3>Revolutionizing Education with AI</h3>
+            <p>Artificial Intelligence is transforming every sector, and education is no exception. For physiology educators, AI offers unparalleled opportunities to create more engaging, personalized, and efficient learning experiences. This presentation explores a curated selection of AI tools designed to elevate your teaching, streamline content creation, and foster deeper student understanding.</p>
+            <p>From generating dynamic lecture content to crafting interactive quizzes and creating stunning visuals, AI can be your most valuable assistant in the classroom. Let's dive into the tools that will help you teach smarter, not harder.</p>
+        </section>
+
+        <section id="llms">
+            <h3>Most Useful Large Language Models (LLMs)</h3>
+            <p>LLMs are powerful AI tools that can generate human-like text, answer questions, summarize information, and even assist with lesson planning. They are your virtual teaching assistants, ready to help with content creation and brainstorming.</p>
+            <div class="grid-container">
+                <div class="card">
+                    <h4>ChatGPT</h4>
+                    <ul>
+                        <li>Versatile text generation, summarization, and explanation.</li>
+                        <li>Can create quiz questions and scenario-based learning prompts.</li>
+                        <li>Excellent for brainstorming lecture topics and outlines.</li>
+                    </ul>
+                    <button onclick="window.open('https://openai.com/chatgpt/', '_blank')">Explore ChatGPT</button>
+                </div>
+                <div class="card">
+                    <h4>Gemini</h4>
+                    <ul>
+                        <li>Google's multimodal LLM, great for integrating text, images, and other media.</li>
+                        <li>Strong creative capabilities for unique lesson content.</li>
+                        <li>Seamless integration with other Google services.</li>
+                    </ul>
+                    <button onclick="window.open('https://gemini.google.com/', '_blank')">Explore Gemini</button>
+                </div>
+                <div class="card">
+                    <h4>Claude</h4>
+                    <ul>
+                        <li>Known for its lengthy context windows, ideal for analyzing long research papers or textbooks.</li>
+                        <li>Good for nuanced conversations and complex problem-solving.</li>
+                        <li>Strong emphasis on safety and ethical AI development.</li>
+                    </ul>
+                    <button onclick="window.open('https://claude.ai/', '_blank')">Explore Claude</button>
+                </div>
+                <div class="card">
+                    <h4>Perplexity AI</h4>
+                    <ul>
+                        <li>Combines LLM capabilities with powerful search features, providing citations.</li>
+                        <li>Excellent for research-backed content generation and fact-checking.</li>
+                        <li>Generates concise answers with source links for deeper exploration.</li>
+                    </ul>
+                    <button onclick="window.open('https://www.perplexity.ai/', '_blank')">Explore Perplexity AI</button>
+                </div>
+                <div class="card">
+                    <h4>Deepseek</h4>
+                    <ul>
+                        <li>Emerging LLM with strong performance in coding and general knowledge.</li>
+                        <li>Potentially useful for generating interactive coding exercises related to physiological data analysis.</li>
+                        <li>Offers competitive performance for various academic tasks.</li>
+                    </ul>
+                    <button onclick="window.open('https://www.deepseek.com/', '_blank')">Explore Deepseek</button>
+                </div>
+                <div class="card">
+                    <h4>Grok</h4>
+                    <ul>
+                        <li>xAI's conversational AI, designed to be witty and informative.</li>
+                        <li>Can provide unique perspectives and engaging dialogue for teaching scenarios.</li>
+                        <li>Offers real-time information access via X (formerly Twitter).</li>
+                    </ul>
+                    <button onclick="window.open('https://grok.x.ai/', '_blank')">Explore Grok</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="prompt-elements">
+            <h3>Crafting Effective Prompts: Your Key to AI Success</h3>
+            <p>The quality of AI output largely depends on the quality of your input. Mastering prompt engineering is crucial for getting the best results from any LLM. Here are key elements to include in your prompts to guide the AI effectively.</p>
+            <div class="prompt-elements">
+                <div class="prompt-element"><h4>Persona</h4></div>
+                <div class="prompt-element"><h4>Task</h4></div>
+                <div class="prompt-element"><h4>Context</h4></div>
+                <div class="prompt-element"><h4>Tone/Style</h4></div>
+                <div class="prompt-element"><h4>Questions?</h4></div>
+                <div class="prompt-element"><h4>Leveling Up</h4></div>
+            </div>
+            <p style="margin-top: 30px;">By clearly defining these elements, you provide the AI with the necessary guidance to generate relevant, accurate, and high-quality content tailored to your specific teaching needs. Experiment with different combinations to find what works best!</p>
+        </section>
+
+        <section id="presentation-tools">
+            <h3>AI-Powered Presentation Tools</h3>
+            <p>Gone are the days of spending hours on slide design. These AI tools can help you generate stunning, professional presentations in minutes, allowing you to focus on content delivery.</p>
+            <div class="grid-container">
+                <div class="card">
+                    <h4>Manus</h4>
+                    <ul>
+                        <li>AI-driven presentation builder for quick slide generation.</li>
+                        <li>Focuses on minimalist design and content clarity.</li>
+                        <li>Helps structure your presentation logically.</li>
+                    </ul>
+                    <button onclick="window.open('https://manus.ai/', '_blank')">Explore Manus</button>
+                </div>
+                <div class="card">
+                    <h4>Gamma AI</h4>
+                    <ul>
+                        <li>Creates engaging presentations, documents, and webpages from text.</li>
+                        <li>Offers intelligent layouts and design suggestions.</li>
+                        <li>Interactive elements to boost audience engagement.</li>
+                    </ul>
+                    <button onclick="window.open('https://gamma.app/', '_blank')">Explore Gamma AI</button>
+                </div>
+                <div class="card">
+                    <h4>Tome</h4>
+                    <ul>
+                        <li>Generative storytelling tool for compelling presentations.</li>
+                        <li>Transforms ideas into narratives with rich visuals.</li>
+                        <li>Easy to use for creating dynamic and interactive "tomes."</li>
+                    </ul>
+                    <button onclick="window.open('https://tome.app/', '_blank')">Explore Tome</button>
+                </div>
+                <div class="card">
+                    <h4>Slides.ai</h4>
+                    <ul>
+                        <li>Generates professional slides directly from your text or outline.</li>
+                        <li>Automates design, layout, and image suggestions.</li>
+                        <li>Saves significant time in presentation preparation.</li>
+                    </ul>
+                    <button onclick="window.open('https://slides.ai/', '_blank')">Explore Slides.ai</button>
+                </div>
+                <div class="card">
+                    <h4>Presentation.ai</h4>
+                    <ul>
+                        <li>AI-powered design assistant for visually appealing presentations.</li>
+                        <li>Offers smart templates and content organization.</li>
+                        <li>Helps maintain brand consistency and professional look.</li>
+                    </ul>
+                    <button onclick="window.open('https://www.presentation.ai/', '_blank')">Explore Presentation.ai</button>
+                </div>
+                <div class="card">
+                    <h4>Genspark</h4>
+                    <ul>
+                        <li>AI platform for content creation, including presentations.</li>
+                        <li>Helps generate comprehensive content based on prompts.</li>
+                        <li>Can assist in research and structuring your talks.</li>
+                    </ul>
+                    <button onclick="window.open('https://genspark.ai/', '_blank')">Explore Genspark</button>
+                </div>
+                <div class="card">
+                    <h4>Claude</h4>
+                    <ul>
+                        <li>Can generate presentation outlines and even draft slide content.</li>
+                        <li>Use its long context window to synthesize information for your talk.</li>
+                        <li>Excellent for refining your speech and key takeaways.</li>
+                    </ul>
+                    <button onclick="window.open('https://claude.ai/', '_blank')">Explore Claude</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="image-generation">
+            <h3>Image Generation & Visuals</h3>
+            <p>Visuals are paramount in physiology education. These AI tools enable you to create stunning diagrams, realistic images, and captivating graphics to illustrate complex concepts effortlessly.</p>
+            <div class="grid-container">
+                <div class="card">
+                    <h4>Gemini (e.g., Gemini Nano)</h4>
+                    <ul>
+                        <li>Google's multimodal AI, capable of generating images from descriptions.</li>
+                        <li>Integrates with text understanding for contextual image creation.</li>
+                        <li>Useful for quick conceptual illustrations.</li>
+                    </ul>
+                    <button onclick="window.open('https://gemini.google.com/', '_blank')">Explore Gemini</button>
+                </div>
+                <div class="card">
+                    <h4>Whisper (Imagen 4)</h4>
+                    <ul>
+                        <li>Google's advanced text-to-image diffusion model.</li>
+                        <li>Generates high-fidelity, realistic images with intricate details.</li>
+                        <li>Ideal for creating complex anatomical or physiological scenes.</li>
+                    </ul>
+                    <button onclick="window.open('https://imagen.research.google/ (note: Imagen 4 is often integrated into platforms like Gemini or Google Cloud AI, direct public access may vary)', '_blank')">Explore Whisper (Imagen 4)</button>
+                </div>
+                <div class="card">
+                    <h4>Napkin (for diagrams)</h4>
+                    <ul>
+                        <li>AI tool specialized in converting text into clear and concise diagrams.</li>
+                        <li>Perfect for flowcharting physiological processes or anatomical relationships.</li>
+                        <li>Simplifies complex information into visual learning aids.</li>
+                    </ul>
+                    <button onclick="window.open('https://napkin.io/', '_blank')">Explore Napkin</button>
+                </div>
+                <div class="card">
+                    <h4>Midjourney</h4>
+                    <ul>
+                        <li>A leading generative AI program for creating intricate and artistic images.</li>
+                        <li>Excellent for conceptual art, creative visual metaphors, or stylized diagrams.</li>
+                        <li>Produces high-quality, aesthetically pleasing results.</li>
+                    </ul>
+                    <button onclick="window.open('https://www.midjourney.com/', '_blank')">Explore Midjourney</button>
+                </div>
+                <div class="card">
+                    <h4>ChatGPT (with DALL-E 3)</h4>
+                    <ul>
+                        <li>Integrated image generation capability via DALL-E 3.</li>
+                        <li>Creates images directly from your conversational prompts.</li>
+                        <li>Great for generating diverse visuals to complement text explanations.</li>
+                    </ul>
+                    <button onclick="window.open('https://openai.com/chatgpt/', '_blank')">Explore ChatGPT</button>
+                </div>
+                <div class="card">
+                    <h4>Ideogram</h4>
+                    <ul>
+                        <li>AI image generator known for its ability to render text accurately within images.</li>
+                        <li>Useful for creating educational posters, labels, or infographics.</li>
+                        <li>Excellent for precise visual communication.</li>
+                    </ul>
+                    <button onclick="window.open('https://ideogram.ai/', '_blank')">Explore Ideogram</button>
+                </div>
+                <div class="card">
+                    <h4>Leonardo AI</h4>
+                    <ul>
+                        <li>Comprehensive AI art generation platform with various models.</li>
+                        <li>Offers fine-grained control over image creation and styling.</li>
+                        <li>Good for both realistic and artistic visual content.</li>
+                    </ul>
+                    <button onclick="window.open('https://leonardo.ai/', '_blank')">Explore Leonardo AI</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="medical-visuals">
+            <h3>Specialized Medical Visuals & 3D</h3>
+            <p>For deep dives into human anatomy and physiology, these tools provide highly accurate and interactive medical visualizations, including 3D models and virtual lab experiences.</p>
+            <div class="grid-container">
+                <div class="card">
+                    <h4>Sketchfab</h4>
+                    <ul>
+                        <li>Platform for sharing and exploring 3D content, including anatomical models.</li>
+                        <li>Allows interactive viewing and embedding of 3D structures.</li>
+                        <li>Excellent for demonstrating complex spatial relationships.</li>
+                    </ul>
+                    <button onclick="window.open('https://sketchfab.com/', '_blank')">Explore Sketchfab</button>
+                </div>
+                <div class="card">
+                    <h4>BioRender</h4>
+                    <ul>
+                        <li>Professional tool for creating scientific figures and diagrams.</li>
+                        <li>Offers a vast library of pre-drawn icons for biology and medicine.</li>
+                        <li>Ensures accuracy and aesthetic appeal for publications and presentations.</li>
+                    </ul>
+                    <button onclick="window.open('https://www.biorender.com/', '_blank')">Explore BioRender</button>
+                </div>
+                <div class="card">
+                    <h4>Biodigital Human</h4>
+                    <ul>
+                        <li>Interactive 3D platform for human anatomy and disease.</li>
+                        <li>Allows detailed exploration of organs, systems, and conditions.</li>
+                        <li>Engaging for students to visualize complex anatomical structures.</li>
+                    </ul>
+                    <button onclick="window.open('https://www.biodigital.com/', '_blank')">Explore Biodigital Human</button>
+                </div>
+                <div class="card">
+                    <h4>Virtual Physiology</h4>
+                    <ul>
+                        <li>Simulations and virtual lab exercises for physiological concepts.</li>
+                        <li>Provides hands-on experience without physical lab equipment.</li>
+                        <li>Enhances understanding of experimental design and data interpretation.</li>
+                    </ul>
+                    <button onclick="window.open('https://www.virtual-physiology.com/', '_blank')">Explore Virtual Physiology</button>
+                </div>
+                <div class="card">
+                    <h4>PraxiLabs</h4>
+                    <ul>
+                        <li>Virtual science labs that provide immersive experimental experiences.</li>
+                        <li>Allows students to conduct virtual experiments in a safe environment.</li>
+                        <li>Great for practical application of physiological principles.</li>
+                    </ul>
+                    <button onclick="window.open('https://praxilabs.com/', '_blank')">Explore PraxiLabs</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="video-generation">
+            <h3>AI Video Generation Tools</h3>
+            <p>Engage your students like never before with dynamic video content. These AI tools can help you create explanatory videos, animated lectures, or even personalized learning modules.</p>
+            <div class="grid-container">
+                <div class="card">
+                    <h4>Sora</h4>
+                    <ul>
+                        <li>OpenAI's text-to-video model, capable of generating realistic and imaginative scenes.</li>
+                        <li>Revolutionizes content creation by turning text prompts into high-quality video.</li>
+                        <li>Future potential for creating dynamic physiological animations.</li>
+                    </ul>
+                    <button onclick="window.open('https://openai.com/sora (access currently limited)', '_blank')">Explore Sora</button>
+                </div>
+                <div class="card">
+                    <h4>Google Veo</h4>
+                    <ul>
+                        <li>Google's advanced video generation model.</li>
+                        <li>Focuses on generating high-definition video from text and images.</li>
+                        <li>Offers great potential for educational explainers and demonstrations.</li>
+                    </ul>
+                    <button onclick="window.open('https://deepmind.google/discover/blog/veo-our-new-generative-ai-model-for-video-and-image-generation/ (often integrated into Google AI platforms, not direct public access yet)', '_blank')">Explore Google Veo</button>
+                </div>
+                <div class="card">
+                    <h4>NotebookLM</h4>
+                    <ul>
+                        <li>Google's AI-powered notebook for organizing and synthesizing information.</li>
+                        <li>Can help outline video scripts and pull key facts for video content.</li>
+                        <li>While not directly a video generator, it's a powerful pre-production tool.</li>
+                    </ul>
+                    <button onclick="window.open('https://notebooklm.google/', '_blank')">Explore NotebookLM</button>
+                </div>
+                <div class="card">
+                    <h4>Kling</h4>
+                    <ul>
+                        <li>Emerging AI video generation tool (specific features depend on development).</li>
+                        <li>Aims to simplify video creation for various purposes.</li>
+                        <li>Keep an eye on its development for educational applications.</li>
+                    </ul>
+                    <button onclick="window.open('https://kling.com.ai/', '_blank')">Explore Kling</button>
+                </div>
+                <div class="card">
+                    <h4>InVideo</h4>
+                    <ul>
+                        <li>AI video editor that helps create videos from text or templates.</li>
+                        <li>Offers a wide range of stock media, music, and voiceovers.</li>
+                        <li>User-friendly for creating quick educational videos.</li>
+                    </ul>
+                    <button onclick="window.open('https://invideo.io/', '_blank')">Explore InVideo</button>
+                </div>
+                <div class="card">
+                    <h4>Hailuo AI</h4>
+                    <ul>
+                        <li>AI video creation platform with focus on efficiency.</li>
+                        <li>Generates professional videos using smart templates and AI assistance.</li>
+                        <li>Suitable for producing engaging short explainers or lecture intros.</li>
+                    </ul>
+                    <button onclick="window.open('https://www.hailuo.ai/', '_blank')">Explore
+                    <button onclick="window.open('https://www.hailuo.ai/', '_blank')">Explore Hailuo AI</button>
+                </div>
+                <div class="card">
+                    <h4>RunwayML</h4>
+                    <ul>
+                        <li>Advanced AI creative suite for video editing and generation.</li>
+                        <li>Offers powerful tools like text-to-video, inpainting, and green screen.</li>
+                        <li>Empowers educators to create highly customized and professional video content.</li>
+                    </ul>
+                    <button onclick="window.open('https://runwayml.com/', '_blank')">Explore RunwayML</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="student-engagement">
+            <h3>Student Engagement & Assessment with AI</h3>
+            <p>Make learning interactive and assessment insightful. These AI tools provide innovative ways to engage students, personalize learning paths, and automate grading, giving you more time to teach.</p>
+            <div class="grid-container">
+                <div class="card">
+                    <h4>Kahoot!</h4>
+                    <ul>
+                        <li>Popular game-based learning platform for quizzes and interactive lessons.</li>
+                        <li>AI can help generate quiz questions and game content.</li>
+                        <li>Increases student participation and makes learning fun.</li>
+                    </ul>
+                    <button onclick="window.open('https://kahoot.com/', '_blank')">Explore Kahoot!</button>
+                </div>
+                <div class="card">
+                    <h4>Magic School AI</h4>
+                    <ul>
+                        <li>AI platform designed specifically for educators to save time.</li>
+                        <li>Generates lesson plans, quizzes, rubrics, and personalized feedback.</li>
+                        <li>A comprehensive tool to assist with various teaching tasks.</li>
+                    </ul>
+                    <button onclick="window.open('https://www.magicschool.ai/', '_blank')">Explore Magic School AI</button>
+                </div>
+                <div class="card">
+                    <h4>Quizizz</h4>
+                    <ul>
+                        <li>Interactive quiz and lesson platform for all grade levels.</li>
+                        <li>AI can assist in creating engaging quizzes with diverse question types.</li>
+                        <li>Provides instant feedback and performance tracking for students.</li>
+                    </ul>
+                    <button onclick="window.open('https://quizizz.com/', '_blank')">Explore Quizizz</button>
+                </div>
+                <div class="card">
+                    <h4>Vega AI</h4>
+                    <ul>
+                        <li>AI tool (specific features can vary, often focused on creative generation).</li>
+                        <li>Can potentially assist in generating creative writing prompts or unique scenarios for problem-based learning.</li>
+                        <li>Explore its capabilities for novel student activities.</li>
+                    </ul>
+                    <button onclick="window.open('https://vegaai.com/ (or search for current Vega AI platform for education)', '_blank')">Explore Vega AI</button>
+                </div>
+                <div class="card">
+                    <h4>Gradescope</h4>
+                    <ul>
+                        <li>Streamlines grading of exams, homework, and lab reports.</li>
+                        <li>AI-assisted grading features help apply consistent feedback.</li>
+                        <li>Saves educators time while providing detailed student analytics.</li>
+                    </ul>
+                    <button onclick="window.open('https://www.gradescope.com/', '_blank')">Explore Gradescope</button>
+                </div>
+                <div class="card">
+                    <h4>Google AI Studio (coding)</h4>
+                    <ul>
+                        <li>Develop AI applications and integrate AI capabilities into educational tools.</li>
+                        <li>For advanced educators, create custom coding challenges or data analysis exercises.</li>
+                        <li>Empowers students to experiment with AI and data.</li>
+                    </ul>
+                    <button onclick="window.open('https://aistudio.google.com/', '_blank')">Explore Google AI Studio</button>
+                </div>
+                <div class="card">
+                    <h4>Quizbot</h4>
+                    <ul>
+                        <li>AI-powered quiz generator that creates questions from any text.</li>
+                        <li>Quickly transforms lecture notes or textbook chapters into quizzes.</li>
+                        <li>Ideal for self-assessment and quick knowledge checks.</li>
+                    </ul>
+                    <button onclick="window.open('https://quizbot.com/ (or search for current AI quiz generator platforms)', '_blank')">Explore Quizbot</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Dr Omar Ayman. All rights reserved. | Teaching Smarter with AI.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navMenu = document.getElementById('navMenu');
+            const menuButton = document.querySelector('.menu-button');
+            const closeMenuButton = document.querySelector('.close-menu');
+            const modeSwitch = document.getElementById('modeSwitch');
+            const sections = document.querySelectorAll('section');
+
+            // Toggle navigation menu
+            menuButton.addEventListener('click', () => {
+                navMenu.classList.add('open');
+            });
+
+            closeMenuButton.addEventListener('click', () => {
+                navMenu.classList.remove('open');
+            });
+
+            // Close menu when a link is clicked
+            navMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    navMenu.classList.remove('open');
+                });
+            });
+
+            // Dark mode toggle
+            modeSwitch.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                modeSwitch.classList.toggle('dark');
+                localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+            });
+
+            // Apply dark mode preference on load
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+                modeSwitch.classList.add('dark');
+            }
+
+            // Intersection Observer for scroll animations
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        });
+    </script>
+</body>
+</html>
